@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Option 2 — Illustrative</title>
+<style>
+  :root {
+    --bg:#0b1320; --line:rgba(255,255,255,.12); --text:#fff; --muted:rgba(255,255,255,.72);
+  }
+  * { box-sizing:border-box; }
+  html,body {
+    margin:0; height:100%;
+    background: radial-gradient(circle at top, #17253c 0%, var(--bg) 55%);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif;
+    overflow:hidden;
+  }
+  .app {
+    height:100%;
+    display:grid;
+    grid-template-rows:auto 1fr auto;
+    gap:12px;
+    padding:14px;
+  }
+  .topbar,.bottombar {
+    display:flex; align-items:center; justify-content:space-between;
+    color:var(--muted); font-size:14px;
+  }
+  .viewer {
+    position:relative; overflow:hidden; border-radius:18px;
+    border:1px solid var(--line); background:rgba(255,255,255,.03);
+    backdrop-filter: blur(8px);
+  }
+  .track {
+    height:100%; display:flex; will-change:transform;
+    touch-action:pan-y; user-select:none; cursor:grab;
+  }
+  .track.dragging { cursor:grabbing; }
+  .slide {
+    min-width:100%; height:100%;
+    display:flex; align-items:center; justify-content:center;
+    padding:18px;
+  }
+  .slide img {
+    max-width:100%; max-height:100%; width:auto; height:auto;
+    border-radius:8px; box-shadow:0 28px 70px rgba(0,0,0,.35);
+    pointer-events:none;
+  }
+  .nav {
+    position:absolute; top:50%; transform:translateY(-50%);
+    width:48px; height:48px; border-radius:999px; border:1px solid var(--line);
+    background:rgba(9,16,28,.68); color:white; display:grid; place-items:center;
+    cursor:pointer; font-size:24px; line-height:1; z-index:10;
+    backdrop-filter:blur(8px);
+  }
+  .nav:hover { background:rgba(9,16,28,.88); }
+  .nav.prev { left:12px; }
+  .nav.next { right:12px; }
+  .dots { display:flex; gap:8px; align-items:center; justify-content:center; flex:1; }
+  .dot {
+    width:8px; height:8px; border-radius:999px; background:rgba(255,255,255,.25);
+    transition:transform .2s ease, background .2s ease; cursor:pointer;
+  }
+  .dot.active { background:white; transform:scale(1.35); }
+  .hint { font-size:12px; color:rgba(255,255,255,.52); }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div>Option 2 — Illustrative</div>
+    <div id="count">1 / 6</div>
+  </div>
+
+  <div class="viewer" id="viewer">
+    <button class="nav prev" id="prev" aria-label="Précédent" type="button">‹</button>
+    <div class="track" id="track"></div>
+    <button class="nav next" id="next" aria-label="Suivant" type="button">›</button>
+  </div>
+
+  <div class="bottombar">
+    <div class="hint">Swipe / drag comme un carousel</div>
+    <div class="dots" id="dots"></div>
+    <div class="hint"><a href="./index.html" style="color:inherit;text-decoration:none;">Retour</a></div>
+  </div>
+</div>
+
+<script>
+const slides = ["assets/option2/01.jpeg", "assets/option2/02.jpeg", "assets/option2/03.jpeg", "assets/option2/04.jpeg", "assets/option2/05.jpeg", "assets/option2/06.jpeg"];
+const track = document.getElementById('track');
+const viewer = document.getElementById('viewer');
+const dotsWrap = document.getElementById('dots');
+const count = document.getElementById('count');
+const prev = document.getElementById('prev');
+const next = document.getElementById('next');
+
+let index = 0, width = 0, startX = 0, currentX = 0, dragging = false, offsetX = 0, moved = false;
+
+slides.forEach((src, i) => {
+  const s = document.createElement('div');
+  s.className = 'slide';
+  const img = document.createElement('img');
+  img.src = src;
+  img.alt = `Slide ${i+1}`;
+  s.appendChild(img);
+  track.appendChild(s);
+
+  const dot = document.createElement('div');
+  dot.className = 'dot' + (i===0 ? ' active' : '');
+  dot.addEventListener('click', (e) => { e.stopPropagation(); snapTo(i, true); });
+  dotsWrap.appendChild(dot);
+});
+
+function setTrack(x, animate=false) {
+  track.style.transition = animate ? 'transform .38s cubic-bezier(.22,.8,.22,1)' : 'none';
+  track.style.transform = `translate3d(${x}px,0,0)`;
+}
+function updateUI() {
+  count.textContent = `${index+1} / ${slides.length}`;
+  [...dotsWrap.children].forEach((d,i)=>d.classList.toggle('active', i===index));
+}
+function snapTo(i, animate=true) {
+  index = Math.max(0, Math.min(slides.length-1, i));
+  offsetX = -index * width;
+  setTrack(offsetX, animate);
+  updateUI();
+}
+function measure() {
+  width = viewer.clientWidth;
+  offsetX = -index * width;
+  setTrack(offsetX, false);
+}
+window.addEventListener('resize', measure);
+measure();
+
+prev.addEventListener('click', (e) => { e.stopPropagation(); snapTo(index-1, true); });
+next.addEventListener('click', (e) => { e.stopPropagation(); snapTo(index+1, true); });
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowLeft') snapTo(index-1, true);
+  if (e.key === 'ArrowRight') snapTo(index+1, true);
+});
+
+function onDown(clientX) {
+  dragging = true; moved = false;
+  track.classList.add('dragging');
+  startX = clientX; currentX = clientX;
+  track.style.transition = 'none';
+}
+function onMove(clientX) {
+  if (!dragging) return;
+  currentX = clientX;
+  const dx = currentX - startX;
+  if (Math.abs(dx) > 6) moved = true;
+  let x = offsetX + dx;
+  if ((index === 0 && dx > 0) || (index === slides.length-1 && dx < 0)) x = offsetX + dx * 0.35;
+  setTrack(x, false);
+}
+function onUp() {
+  if (!dragging) return;
+  dragging = false;
+  track.classList.remove('dragging');
+  const dx = currentX - startX;
+  const threshold = Math.min(140, width * 0.16);
+  if (Math.abs(dx) > threshold) index += dx < 0 ? 1 : -1;
+  snapTo(index, true);
+}
+
+track.addEventListener('pointerdown', (e) => { onDown(e.clientX); track.setPointerCapture(e.pointerId); });
+track.addEventListener('pointermove', (e) => onMove(e.clientX));
+track.addEventListener('pointerup', onUp);
+track.addEventListener('pointercancel', onUp);
+track.addEventListener('lostpointercapture', onUp);
+
+viewer.addEventListener('click', (e) => {
+  if (e.target.closest('.nav') || e.target.closest('.dot')) return;
+  if (moved || Math.abs(currentX - startX) > 8) return;
+  const rect = viewer.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  if (x < rect.width * 0.18) snapTo(index-1, true);
+  else if (x > rect.width * 0.82) snapTo(index+1, true);
+});
+updateUI();
+</script>
+</body>
+</html>
