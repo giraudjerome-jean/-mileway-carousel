@@ -11,13 +11,11 @@
     --line:#d7d8db;
     --text:#0a2955;
     --blue:#0089DD;
+    --muted:#4f5b6d;
   }
   *{box-sizing:border-box}
   body{
-    margin:0;
-    min-height:100vh;
-    background:var(--bg);
-    color:var(--text);
+    margin:0; min-height:100vh; background:var(--bg); color:var(--text);
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif;
   }
   .wrap{
@@ -27,7 +25,7 @@
   }
   .grid{
     display:grid;
-    grid-template-columns:repeat(3, minmax(0,1fr));
+    grid-template-columns:repeat(2, minmax(0,1fr));
     gap:26px;
   }
   .card{
@@ -40,63 +38,32 @@
     color:inherit;
     display:block;
   }
-  .preview{
-    aspect-ratio:1 / 1;
-    background:#edf2f7;
-    overflow:hidden;
-  }
-  .preview img{
-    width:100%;
-    height:100%;
-    object-fit:cover;
-    display:block;
-  }
-  .content{
-    padding:18px 20px 20px;
-    display:grid;
-    gap:8px;
-  }
-  .eyebrow{
-    color:var(--blue);
-    font-size:13px;
-    font-weight:700;
-  }
-  .title{
-    font-size:28px;
-    line-height:1.05;
-    letter-spacing:-.03em;
-    font-weight:700;
-    margin:0;
-  }
-  @media (max-width: 1100px){
-    .grid{grid-template-columns:1fr;}
-  }
+  .preview{ aspect-ratio:1 / 1; background:#edf2f7; overflow:hidden; }
+  .preview img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .content{ padding:18px 20px 20px; display:grid; gap:8px; }
+  .eyebrow{ color:var(--blue); font-size:13px; font-weight:700; }
+  .title{ font-size:28px; line-height:1.05; letter-spacing:-.03em; font-weight:700; margin:0; }
+  .note{ color:var(--muted); font-size:15px; line-height:1.4; }
+  @media (max-width: 980px){ .grid{grid-template-columns:1fr;} }
 </style>
 </head>
 <body>
   <div class="wrap">
     <div class="grid">
-      <a class="card" href="./option1_wave.html">
-        <div class="preview"><img src="assets/option1/01.png" alt="Option 1"></div>
+      <a class="card" href="./v1.html">
+        <div class="preview"><img src="assets/v1/01.png" alt="Option 1"></div>
         <div class="content">
           <div class="eyebrow">Option 1</div>
-          <h2 class="title">Continuous wave</h2>
+          <h2 class="title">Illustrative direction</h2>
+          <div class="note">La V1 ne comporte pas de photographies.</div>
         </div>
       </a>
-
-      <a class="card" href="./option2_illustrative.html">
-        <div class="preview"><img src="assets/option2/01.jpeg" alt="Option 2"></div>
+      <a class="card" href="./v2.html">
+        <div class="preview"><img src="assets/v2/01.png" alt="Option 2"></div>
         <div class="content">
           <div class="eyebrow">Option 2</div>
-          <h2 class="title">Illustrative direction</h2>
-        </div>
-      </a>
-
-      <a class="card" href="./option3_soft_wave.html">
-        <div class="preview"><img src="assets/option3/01.jpeg" alt="Option 3"></div>
-        <div class="content">
-          <div class="eyebrow">Option 3</div>
-          <h2 class="title">Soft wave</h2>
+          <h2 class="title">Photographic direction</h2>
+          <div class="note">La V2 comporte des photographies.</div>
         </div>
       </a>
     </div>
